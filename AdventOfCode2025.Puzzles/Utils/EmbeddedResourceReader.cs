@@ -19,7 +19,7 @@ internal class EmbeddedResourceReader
 
     private static string Read(string folder, string filename)
     {
-        var assembly = Assembly.GetExecutingAssembly();
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
         var resourceName = $"{typeof(EmbeddedResourceReader).Namespace?.Replace(".Utils", "")}.{folder}.{filename}.txt";
 
         using var stream = assembly.GetManifestResourceStream(resourceName);

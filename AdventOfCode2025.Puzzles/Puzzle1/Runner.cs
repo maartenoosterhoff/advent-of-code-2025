@@ -1,42 +1,60 @@
 ﻿using AdventOfCode2025.Puzzles.Utils;
 using FluentAssertions;
-using Xunit;
 
 namespace AdventOfCode2025.Puzzles.Puzzle1;
 
 public class Runner
 {
-    [Theory]
-    [InlineData("TestInput", 3)]
-    [InlineData("Input", 1147)]
+    [Test]
+    [Arguments("TestInput", 3)]
+    [Arguments("Input", 1147)]
     public void RunAlpha(string filename, int expected)
     {
-        var actual = Execute(filename);
+        var actual = Execute(filename, Agg);
         actual.Should().Be(expected);
+        return;
+
+        static (int, int) Agg(int pos, LineInfo li)
+        {
+            var newPos = pos + li.Sign * li.Value;
+            newPos = newPos % 100;
+            if (newPos == 0)
+            {
+                return (newPos, 1);
+            }
+            return (newPos, 0);
+        }
     }
 
-    //[Theory]
-    //[InlineData("TestInput", 31)]
-    //[InlineData("Input", 23177084)]
-    //public void RunBeta(string filename, int expected)
-    //{
-    //    var (points1, points2) = Execute(filename);
-    //    var map = points2.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+    [Test]
+    [Arguments("TestInput", 6)]
+    [Arguments("Input", 6789)]
+    public void RunBeta(string filename, int expected)
+    {
+        var actual = Execute(filename, Agg);
+        actual.Should().Be(expected);
+        return;
 
-    //    var sum = 0;
+        static (int, int) Agg(int pos, LineInfo li)
+        {
+            var value = li.Value;
+            var count = 0;
+            while (value > 0)
+            {
+                pos += li.Sign;
+                pos %= 100;
+                if (pos == 0)
+                {
+                    count++;
+                }
+                value--;
+            }
 
-    //    foreach (var point1 in points1)
-    //    {
-    //        if (map.TryGetValue(point1, out var scoreIncreaser))
-    //        {
-    //            sum += point1 * scoreIncreaser;
-    //        }
-    //    }
+            return (pos, count);
+        }
+    }
 
-    //    sum.Should().Be(expected);
-    //}
-
-    private static int Execute(string filename)
+    private static int Execute(string filename, Func<int, LineInfo, (int pos, int count)> agg)
     {
         var lines = EmbeddedResourceReader.Read<Runner>(filename);
 
@@ -50,27 +68,27 @@ public class Runner
                 continue;
             }
 
+            LineInfo li;
+
             if (line[0] == 'L')
             {
-                pos -= int.Parse(line.Substring(1));
+                li = new(-1, int.Parse(line.Substring(1)));
             }
             else if (line[0] == 'R')
             {
-                pos += int.Parse(line.Substring(1));
-            } else
+                li = new(1, int.Parse(line.Substring(1)));
+            }
+            else
             {
                 throw new NotImplementedException();
             }
 
-                pos = pos % 100;
-
-            if (pos == 0)
-            {
-                count++;
-            }
+            (pos, var countAdd) = agg(pos, li);
+            count += countAdd;
         }
 
         return count;
 
     }
+    private record LineInfo(int Sign, int Value);
 }
