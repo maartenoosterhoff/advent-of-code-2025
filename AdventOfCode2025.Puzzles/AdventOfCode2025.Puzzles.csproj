@@ -8,11 +8,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Puzzle2\Input.txt" />
+		<None Remove="Puzzle2\TestInput.txt" />
 		<None Remove="Puzzle1\Input.txt" />
 		<None Remove="Puzzle1\TestInput.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="Puzzle2\Input.txt" />
+		<EmbeddedResource Include="Puzzle2\TestInput.txt" />
 		<EmbeddedResource Include="Puzzle1\Input.txt" />
 		<EmbeddedResource Include="Puzzle1\TestInput.txt" />
 	</ItemGroup>
