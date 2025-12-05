@@ -17,12 +17,8 @@ public class Runner
         static (int, int) Agg(int pos, LineInfo li)
         {
             var newPos = pos + li.Sign * li.Value;
-            newPos = newPos % 100;
-            if (newPos == 0)
-            {
-                return (newPos, 1);
-            }
-            return (newPos, 0);
+            newPos %= 100;
+            return (newPos, newPos == 0 ? 1 : 0);
         }
     }
 
@@ -68,20 +64,12 @@ public class Runner
                 continue;
             }
 
-            LineInfo li;
-
-            if (line[0] == 'L')
+            LineInfo li = line[0] switch
             {
-                li = new(-1, int.Parse(line.Substring(1)));
-            }
-            else if (line[0] == 'R')
-            {
-                li = new(1, int.Parse(line.Substring(1)));
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+                'L' => new(-1, int.Parse(line[1..])),
+                'R' => new(1, int.Parse(line[1..])),
+                _ => throw new NotImplementedException()
+            };
 
             (pos, var countAdd) = agg(pos, li);
             count += countAdd;

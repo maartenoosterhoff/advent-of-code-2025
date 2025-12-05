@@ -1,6 +1,5 @@
 ﻿using AdventOfCode2025.Puzzles.Utils;
 using FluentAssertions;
-using TUnit.Assertions.Conditions;
 
 namespace AdventOfCode2025.Puzzles.Puzzle4;
 

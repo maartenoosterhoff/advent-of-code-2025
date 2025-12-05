@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace AdventOfCode2025.Puzzles.Utils;
+﻿namespace AdventOfCode2025.Puzzles.Utils;
 
 internal class EmbeddedResourceReader
 {
@@ -13,8 +11,7 @@ internal class EmbeddedResourceReader
         return lines
             .Replace(Environment.NewLine, "\n")
             .Replace("\r", "\n")
-            .Split("\n")
-            .ToArray();
+            .Split("\n");
     }
 
     private static string Read(string folder, string filename)

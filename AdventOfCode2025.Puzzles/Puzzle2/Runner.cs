@@ -21,7 +21,7 @@ public class Runner
             if (len % 2 == 0)
             {
                 var half = len / 2;
-                if (idTxt.Substring(0, half) == idTxt.Substring(half))
+                if (idTxt[..half] == idTxt[half..])
                 {
                     return true;
                 }
@@ -50,7 +50,7 @@ public class Runner
                 if (len % curr == 0 && len != curr)
                 {
                     // first part
-                    var exp = idTxt.Substring(0, curr);
+                    var exp = idTxt[..curr];
                     var pos = curr;
                     var isInvalid = true;
                     while (pos < len)

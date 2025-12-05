@@ -23,7 +23,7 @@ public class Runner
         actual.Should().Be(expected);
     }
 
-    static long Finder(string bank, int max)
+    private static long Finder(string bank, int max)
     {
         const string byMax = "987654321";
 
@@ -34,7 +34,7 @@ public class Runner
         {
             foreach (var m in byMax)
             {
-                var newPos = bank.Substring(0, bank.Length - (max - curr) + 1).IndexOf(m, pos);
+                var newPos = bank[..(bank.Length - (max - curr) + 1)].IndexOf(m, pos);
                 if (newPos >= 0)
                 {
                     chars.Add(m);
@@ -45,30 +45,13 @@ public class Runner
             curr++;
         }
 
-        if (chars.Count == max)
-        {
-            return long.Parse(new string(chars.ToArray()));
-        }
-        return 0L;
+        return chars.Count == max ? long.Parse(new string(chars.ToArray())) : 0L;
     }
 
     private static long Execute(string filename, Func<string, long> finder)
     {
         var lines = EmbeddedResourceReader.Read<Runner>(filename);
 
-        var total = 0L;
-
-        foreach (var line in lines)
-        {
-            if (string.IsNullOrEmpty(line))
-            {
-                continue;
-            }
-
-            total += finder(line);
-
-        }
-
-        return total;
+        return lines.Where(line => !string.IsNullOrEmpty(line)).Sum(finder);
     }
 }
