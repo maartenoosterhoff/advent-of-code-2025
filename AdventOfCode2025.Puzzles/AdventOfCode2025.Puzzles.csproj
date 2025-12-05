@@ -12,11 +12,15 @@
 		<None Remove="Puzzle2\TestInput.txt" />
 		<None Remove="Puzzle1\Input.txt" />
 		<None Remove="Puzzle1\TestInput.txt" />
+		<None Remove="Puzzle5\Input.txt" />
+		<None Remove="Puzzle5\TestInput.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Puzzle3\Input.txt" />
 		<EmbeddedResource Include="Puzzle3\TestInput.txt" />
+		<EmbeddedResource Include="Puzzle5\Input.txt" />
+		<EmbeddedResource Include="Puzzle5\TestInput.txt" />
 		<EmbeddedResource Include="Puzzle4\Input.txt" />
 		<EmbeddedResource Include="Puzzle4\TestInput.txt" />
 		<EmbeddedResource Include="Puzzle2\Input.txt" />
