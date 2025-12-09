@@ -1,5 +1,6 @@
 ﻿using AdventOfCode2025.Puzzles.Utils;
 using FluentAssertions;
+using System.Collections.Concurrent;
 
 namespace AdventOfCode2025.Puzzles.Puzzle7;
 
@@ -8,24 +9,25 @@ public class Runner
     [Test]
     [Arguments("TestInput", 21)]
     [Arguments("Input", 1533)]
-    public void RunAlpha(string filename, int expected)
+    public void RunAlpha(string filename, long expected)
     {
         var actual = Execute(
             filename,
-            (string line, HashSet<int> points, int count) =>
+            (string line, ConcurrentDictionary<int, long> points, long count) =>
             {
-                var newPoints = new HashSet<int>();
-                foreach (var point in points)
+                var newPoints = new ConcurrentDictionary<int, long>();
+                foreach (var kvp in points)
                 {
+                    var point = kvp.Key;
                     if (line[point] == '^')
                     {
-                        newPoints.Add(point - 1);
-                        newPoints.Add(point + 1);
+                        newPoints.TryAdd(point - 1, 0);
+                        newPoints.TryAdd(point + 1, 0);
                         count++;
                     }
                     else
                     {
-                        newPoints.Add(point);
+                        newPoints.TryAdd(point, 0);
                     }
                 }
 
@@ -36,21 +38,41 @@ public class Runner
 
     [Test]
     [Arguments("TestInput", 40)]
-    [Arguments("Input", 0)]
-    public void RunBeta(string filename, int expected)
+    [Arguments("Input", 10733529153890L)]
+    public void RunBeta(string filename, long expected)
     {
-        //var actual = Execute(filename);
-        //actual.Should().Be(expected);
+        var actual = Execute(
+            filename,
+            (string line, ConcurrentDictionary<int, long> points, long count) =>
+            {
+                var newPoints = new ConcurrentDictionary<int, long>();
+                foreach (var kvp in points)
+                {
+                    var point = kvp.Key;
+                    if (line[point] == '^')
+                    {
+                        newPoints.AddOrUpdate(point - 1, kvp.Value, (_, v) => v + kvp.Value);
+                        newPoints.AddOrUpdate(point + 1, kvp.Value, (_, v) => v + kvp.Value);
+                    }
+                    else
+                    {
+                        newPoints.AddOrUpdate(point, kvp.Value, (_, v) => v + kvp.Value);
+                    }
+                }
+                count = newPoints.Sum(kvp => kvp.Value);
+                return (newPoints, count);
+            });
+        actual.Should().Be(expected);
     }
 
-    private static int Execute(string filename, Func<string, HashSet<int>, int, (HashSet<int> newPoints, int newCount)> mapper)
+    private static long Execute(string filename, Func<string, ConcurrentDictionary<int, long>, long, (ConcurrentDictionary<int, long> newPoints, long newCount)> mapper)
     {
         var lines = EmbeddedResourceReader.Read<Runner>(filename);
 
-        var points = new HashSet<int>();
+        var points = new ConcurrentDictionary<int, long>();
 
         var startPos = -1;
-        var count = 0;
+        long count = 0;
         foreach (var line in lines)
         {
             if (startPos == -1)
@@ -61,13 +83,14 @@ public class Runner
                     throw new InvalidOperationException();
                 }
 
-                points.Add(startPos);
+                points.TryAdd(startPos, 1);
 
                 continue;
             }
 
             (points, count) = mapper(line, points, count);
         }
+
         return count;
     }
 }
