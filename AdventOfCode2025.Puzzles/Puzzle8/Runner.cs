@@ -14,12 +14,13 @@ public class Runner
         actual.Should().Be(expected);
     }
 
-    //[Test]
-    //[Arguments("TestInput", 40)]
-    //[Arguments("Input", 10733529153890L)]
-    //public void RunBeta(string filename, long expected)
-    //{
-    //}
+    [Test]
+    [Arguments("TestInput", 0)]
+    [Arguments("Input", 0)]
+    public void RunBeta(string filename, long expected)
+    {
+        Assert.Fail("not yet implemented");
+    }
 
     private static int Execute(string filename, int connectCount)
     {
