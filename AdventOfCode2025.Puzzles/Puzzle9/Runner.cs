@@ -1,7 +1,6 @@
 ﻿using AdventOfCode2025.Puzzles.Utils;
 using FluentAssertions;
 using System.Text;
-using TUnit.Generated;
 
 namespace AdventOfCode2025.Puzzles.Puzzle9;
 
