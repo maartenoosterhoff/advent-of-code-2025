@@ -27,20 +27,10 @@ public class Runner
 
     [Test]
     [Arguments("TestInput", 3263827)]
-    [Arguments("Input", 0)]
+    [Arguments("Input", 8486156119946L)]
     public void RunBeta(string filename, long expected)
     {
-        var actual = Execute2(
-            filename,
-            (data, @operator) =>
-            {
-                return @operator switch
-                {
-                    '+' => data.Select(long.Parse).Aggregate((total, next) => next + total),
-                    '*' => data.Select(long.Parse).Aggregate((total, next) => next * total),
-                    _ => throw new InvalidOperationException()
-                };
-            });
+        var actual = Execute2(filename);
         actual.Should().Be(expected);
     }
 
@@ -69,28 +59,73 @@ public class Runner
         return total;
     }
 
-    private static long Execute2(string filename, Func<List<string>, char, long> operation)
+    private static long Execute2(string filename)
     {
         var lines = EmbeddedResourceReader.Read<Runner>(filename);
-
-        var dataSplit = lines.Select(x => x.Replace("  ", " ").Split([" "], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)).ToArray();
-        var rowCount = dataSplit.Length;
-        var count = dataSplit.First().Length;
-        if (dataSplit.Any(x => x.Length != count))
+        var len = lines[0].Length;
+        var data = Enumerable.Range(0, lines.Length).Select(x => new List<string>()).ToArray();
+        var current = Enumerable.Range(0, lines.Length).Select(x => "").ToArray();
+        for (var i = 0; i < len; i++)
         {
-            throw new InvalidOperationException();
+            if (lines.All(l => l[i] == ' '))
+            {
+                for (var j = 0; j < lines.Length; j++)
+                {
+                    data[j].Add(current[j]);
+                    current[j] = "";
+                }
+            }
+            else
+            {
+                for (var j = 0; j < lines.Length; j++)
+                {
+                    current[j] += lines[j][i];
+                }
+            }
         }
 
-        var numbersData = dataSplit.Take(rowCount - 1).ToArray();
-        var operatorData = dataSplit[rowCount - 1];
-        var total = 0L;
-        for (var i = 0; i < count; i++)
+        if (current[0].Length > 0)
         {
-            var op = operatorData[i][0];
-            var data = numbersData.Select(z => z[i]).ToList();
-            total += operation(data, op);
+            for (var j = 0; j < lines.Length; j++)
+            {
+                data[j].Add(current[j]);
+                current[j] = "";
+            }
         }
 
-        return total;
+        var sum = 0L;
+        var nrsCount = data.Length - 1;
+        var opIndex = data.Length - 1;
+        var caseCount = data[0].Count;
+
+        for (var i = caseCount - 1; i >= 0; i--)
+        {
+            var op = data[opIndex][i].Trim();
+
+            var numberLen = data[0][i].Length;
+            var numbers = Enumerable.Range(0, numberLen).Select(x => "").ToList();
+            for (var j = numberLen - 1; j >= 0; j--)
+            {
+                for (var k = 0; k < nrsCount; k++)
+                {
+                    numbers[j] += data[k][i][j];
+                }
+            }
+
+            if (op == "*")
+            {
+                sum += numbers.Select(x => long.Parse(x.Trim())).Aggregate((total, next) => total * next);
+            }
+            else if (op == "+")
+            {
+                sum += numbers.Select(x => long.Parse(x.Trim())).Sum();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        return sum;
     }
 }

@@ -28,7 +28,7 @@ public class Runner
         var junctionBoxes = lines.Select(JunctionBox.Create).ToArray();
         var permutations = Permutate(junctionBoxes).OrderBy(x => x.Distance).ToArray();
         var circuits = new List<Circuit>();
-        for (int i = 0; i < connectCount; i++)
+        for (var i = 0; i < connectCount; i++)
         {
             var perm = permutations[i];
             var leftCircuit = circuits.FirstOrDefault(x => x.Contains(perm.Left));
@@ -72,9 +72,9 @@ public class Runner
     {
         var count = input.Length;
         var items = new List<Connection>();
-        for (int i = 0; i < count - 1; i++)
+        for (var i = 0; i < count - 1; i++)
         {
-            for (int j = i + 1; j < count; j++)
+            for (var j = i + 1; j < count; j++)
             {
                 items.Add(new Connection(input[i], input[j]));
             }
