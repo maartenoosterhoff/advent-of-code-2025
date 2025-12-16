@@ -8,6 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="Puzzle10\Input.txt" />
+		<EmbeddedResource Include="Puzzle10\TestInput.txt" />
 		<EmbeddedResource Include="Puzzle9\Input.txt" />
 		<EmbeddedResource Include="Puzzle9\TestInput.txt" />
 		<EmbeddedResource Include="Puzzle8\Input.txt" />
