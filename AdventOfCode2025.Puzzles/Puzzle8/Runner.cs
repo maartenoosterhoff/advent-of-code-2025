@@ -6,29 +6,46 @@ namespace AdventOfCode2025.Puzzles.Puzzle8;
 public class Runner
 {
     [Test]
-    [Arguments("TestInput", 40, 10)]
-    [Arguments("Input", 46398, 1000)]
+    [Arguments("TestInput", 40, 10L)]
+    [Arguments("Input", 46398, 1000L)]
     public void RunAlpha(string filename, int expected, int connectCount)
     {
-        var actual = Execute(filename, connectCount);
+        var actual = Execute(
+            filename,
+            connectCount,
+            (_, _) => false,
+            static (_, circuits) => circuits
+                .Where(x => x.Size != 0)
+                .Select(x => x.Size)
+                .OrderByDescending(x => x)
+                .Take(3)
+                .Aggregate((total, next) => total * next));
         actual.Should().Be(expected);
     }
 
     [Test]
-    [Arguments("TestInput", 0)]
-    [Arguments("Input", 0)]
+    [Arguments("TestInput", 25272L)]
+    [Arguments("Input", 8141888143L)]
     public void RunBeta(string filename, long expected)
     {
-        Assert.Fail("not yet implemented");
+        var actual = Execute(
+            filename,
+            int.MaxValue,
+            static (junctionBoxes, circuits) =>
+                circuits.Count(x => x.Size > 0) == 1 &&
+                circuits.Sum(x => x.Size) == junctionBoxes.Count,
+            static (lastConnection, _) => (long)lastConnection.Left.X * (long)lastConnection.Right.X);
+        actual.Should().Be(expected);
     }
 
-    private static int Execute(string filename, int connectCount)
+    private static long Execute(string filename, int connectCount, Func<List<JunctionBox>, List<Circuit>, bool> earlyExit, Func<Connection, List<Circuit>, long> calculator)
     {
         var lines = EmbeddedResourceReader.Read<Runner>(filename);
 
-        var junctionBoxes = lines.Select(JunctionBox.Create).ToArray();
-        var permutations = Permutate(junctionBoxes).OrderBy(x => x.Distance).ToArray();
+        var junctionBoxes = lines.Select(JunctionBox.Create).ToList();
+        var permutations = Permutate(junctionBoxes).OrderBy(x => x.Distance).ToList();
         var circuits = new List<Circuit>();
+        Connection lastConnection = null!;
         for (var i = 0; i < connectCount; i++)
         {
             var perm = permutations[i];
@@ -59,19 +76,21 @@ public class Runner
                     rightCircuit.Clear();
                 }
             }
+
+            lastConnection = perm;
+
+            if (earlyExit(junctionBoxes, circuits))
+            {
+                break;
+            }
         }
 
-        return circuits
-            .Where(x => x.Size != 0)
-            .Select(x => x.Size)
-            .OrderByDescending(x => x)
-            .Take(3)
-            .Aggregate((total, next) => total * next);
+        return calculator(lastConnection, circuits);
     }
 
-    private static List<Connection> Permutate(JunctionBox[] input)
+    private static List<Connection> Permutate(List<JunctionBox> input)
     {
-        var count = input.Length;
+        var count = input.Count;
         var items = new List<Connection>();
         for (var i = 0; i < count - 1; i++)
         {
